@@ -23,7 +23,7 @@ resource "aws_subnet" "km-kn-public-subnet-terra-tp-aws" {
   map_public_ip_on_launch = true
 
   tags = {
-    "Name" = "km-kn-public-subnet-terra-tp-aws"
+    "Name" = "${var.prefix}-public-subnet-${var.suffix}"
   }
 }
 
@@ -33,7 +33,7 @@ resource "aws_subnet" "km-kn-private-subnet-terra-tp-aws" {
   availability_zone = "eu-west-1b"
 
   tags = {
-    "Name" = "km-kn-private-subnet-terra-tp-aws"
+    "Name" = "${var.prefix}-private-subnet-${var.suffix}"
   }
 }
 
@@ -44,7 +44,7 @@ resource "aws_route_table" "km-kn-public-route-table-terra-tp-aws" {
     gateway_id = data.aws_internet_gateway.existing_ig.id
   }
   tags = {
-    "Name" = "km-kn-public-route-table-terra-tp-aws"
+    "Name" = "${var.prefix}-public-route-table-${var.suffix}"
   }
 
   depends_on = [data.aws_internet_gateway.existing_ig]
@@ -61,7 +61,7 @@ resource "aws_nat_gateway" "km-kn-NAT-gateway-terra-tp-aws" {
   connectivity_type = "public"
   depends_on        = [data.aws_internet_gateway.existing_ig]
   tags = {
-    "Name" = "km-kn-NAT-gateway-terra-tp-aws"
+    "Name" = "${var.prefix}-NAT-gateway-${var.suffix}"
   }
 }
 
@@ -72,7 +72,7 @@ resource "aws_route_table" "km-kn-private-route-table-terra-tp-aws" {
     nat_gateway_id = aws_nat_gateway.km-kn-NAT-gateway-terra-tp-aws.id
   }
   tags = {
-    "Name" = "km-kn-private-route-table-terra-tp-aws"
+    "Name" = "${var.prefix}-private-route-table-${var.suffix}"
   }
   depends_on = [aws_nat_gateway.km-kn-NAT-gateway-terra-tp-aws]
 }

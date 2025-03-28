@@ -27,9 +27,9 @@ resource "aws_instance" "km-kn-EC2-public-terra-tp-aws" {
             sudo dnf install -y https://rpm.nodesource.com/pub_20.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm
             sudo dnf install -y nodejs      
   EOF
-
+  security_groups = [ aws_security_group.km-kn-security-group-terra-tp-aws.id ]
   tags = {
-    "Name" = "km-kn-EC2-public-terra-tp-aws"
+    "Name" = "${var.prefix}-EC2-public-${var.suffix}"
   }
 }
 
@@ -49,9 +49,9 @@ resource "aws_instance" "km-kn-EC2-private-terra-tp-aws" {
             sudo systemctl enable mysqld
             sudo systemctl status mysqld
   EOF
-
+    security_groups = [ aws_security_group.km-kn-security-group-terra-tp-aws.id ]
   tags = {
-    "Name" = "km-kn-EC2-private-terra-tp-aws"
+    "Name" = "${var.prefix}-EC2-private-${var.suffix}"
   }
 }
 
@@ -61,9 +61,18 @@ resource "aws_ec2_instance_state" "km-kn-private-ec2-state-tp-aws" {
 }
 
 resource "aws_security_group" "km-kn-security-group-terra-tp-aws" {
+    vpc_id = data.aws_vpc.existing_vpc.id
+    name = "EC2 security groups"
   ingress {
     from_port   = 22
     to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
