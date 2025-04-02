@@ -16,6 +16,16 @@ data "aws_eip" "existing_eip" {
   public_ip = "54.78.238.172"
 }
 
+<<<<<<< Updated upstream
+=======
+data "aws_nat_gateway" "existing_nat_gateway" {
+  filter {
+    name   = "tag:Name"
+    values = ["LB-nat-_terraform.tp_aws"]
+  }
+}
+
+>>>>>>> Stashed changes
 resource "aws_subnet" "km-kn-public-subnet-terra-tp-aws" {
   vpc_id                  = data.aws_vpc.existing_vpc.id
   cidr_block              = "50.20.10.32/28"

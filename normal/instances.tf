@@ -17,8 +17,13 @@ resource "aws_instance" "km-kn-EC2-public-terra-tp-aws" {
             ng version  # Check Angular installation
             echo "Node.js and Angular CLI installed successfully."                   
   EOF
+<<<<<<< Updated upstream
   security_groups = [ aws_security_group.km-kn-security-group-terra-tp-aws.id ]
   key_name = aws_key_pair.km-kn-public-key-terra-tp-aws.key_name
+=======
+  vpc_security_group_ids = [ aws_security_group.km-kn-public-security-group-terra-tp-aws.id ]
+  key_name = aws_key_pair.km-kn-key-terra-tp-aws.key_name
+>>>>>>> Stashed changes
   tags = {
     "Name" = "${var.prefix}-EC2-public-${var.suffix}"
   }
@@ -47,8 +52,13 @@ resource "aws_instance" "km-kn-EC2-private-terra-tp-aws" {
             sudo systemctl enable mysqld
             sudo systemctl status mysqld
   EOF
+<<<<<<< Updated upstream
     security_groups = [ aws_security_group.km-kn-security-group-terra-tp-aws.id ]
     key_name = aws_key_pair.km-kn-private-key-terra-tp-aws.key_name
+=======
+    vpc_security_group_ids = [ aws_security_group.km-kn-private-security-group-terra-tp-aws.id ]
+    key_name = aws_key_pair.km-kn-key-terra-tp-aws.key_name
+>>>>>>> Stashed changes
   tags = {
     "Name" = "${var.prefix}-EC2-private-${var.suffix}"
   }
@@ -59,36 +69,60 @@ resource "aws_ec2_instance_state" "km-kn-private-ec2-state-tp-aws" {
   state       = "running"
 }
 
-resource "aws_security_group" "km-kn-security-group-terra-tp-aws" {
+resource "aws_security_group" "km-kn-public-security-group-terra-tp-aws" {
     vpc_id = data.aws_vpc.existing_vpc.id
-    name = "EC2 security groups"
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+    name = "Public-EC2-security-group"
 }
 
-resource "aws_key_pair" "km-kn-public-key-terra-tp-aws" {
+resource "aws_vpc_security_group_ingress_rule" "public_ingress_tcp" {
+  security_group_id = aws_security_group.km-kn-public-security-group-terra-tp-aws.id
+  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 22
+  ip_protocol = "tcp"
+  to_port     = 22
+}
+
+resource "aws_vpc_security_group_ingress_rule" "public_ingress_https" {
+  security_group_id = aws_security_group.km-kn-public-security-group-terra-tp-aws.id
+  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 443
+  ip_protocol = "tcp"
+  to_port     = 443
+}
+
+resource "aws_vpc_security_group_egress_rule" "public_egress" {
+  security_group_id = aws_security_group.km-kn-public-security-group-terra-tp-aws.id
+  from_port   = 0
+  to_port     = 0
+  ip_protocol = "-1"
+  cidr_ipv4 = "0.0.0.0/0"
+}
+
+resource "aws_security_group" "km-kn-private-security-group-terra-tp-aws" {
+    vpc_id = data.aws_vpc.existing_vpc.id
+    name = "Private-EC2-security-group"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "private_ingress_tcp" {
+  security_group_id = aws_security_group.km-kn-private-security-group-terra-tp-aws.id
+  cidr_ipv4   = "50.20.10.32/28"
+  from_port   = 22
+  ip_protocol = "tcp"
+  to_port     = 22
+}
+
+resource "aws_vpc_security_group_egress_rule" "private_egress" {
+  security_group_id = aws_security_group.km-kn-private-security-group-terra-tp-aws.id
+  from_port   = 0
+  to_port     = 0
+  ip_protocol = "-1"
+  cidr_ipv4 = "0.0.0.0/0"
+}
+
+resource "aws_key_pair" "km-kn-key-terra-tp-aws" {
   key_name = "km-kn-public-key-terra-tp-aws"
   public_key = file("~/.ssh/km-kn-key-public.pub")
   tags = {
     "Name" = "${var.prefix}-public-key-terra-${var.suffix}"
-  }
-}
-
-resource "aws_key_pair" "km-kn-private-key-terra-tp-aws" {
-  key_name = "km-kn-private-key-terra-tp-aws"
-  public_key = file("~/.ssh/km-kn-key-private.pub")
-  tags = {
-    "Name" = "${var.prefix}-private-key-terra-${var.suffix}"
   }
 }
